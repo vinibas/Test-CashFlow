@@ -1,0 +1,43 @@
+{
+    // Use o IntelliSense para saber mais sobre os atributos possíveis.
+    // Focalizar para exibir as descrições dos atributos existentes.
+    // Para obter mais informações, acesse: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "DotNetWatch",
+            "request": "launch",
+            "name": ".NET Watch DevKit",
+            "args": [],
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "DOTNET_WATCH_RESTART_ON_RUDE_EDIT": "true"
+            }
+        },
+        {
+            "name": ".NET Run CoreClr",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/src/CashFlow.Api/bin/Debug/net9.0/CashFlow.Api.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+            },
+            "launchSettingsProfile": "Development",
+            "launchSettingsFilePath": "${workspaceFolder}/src/CashFlow.Api/Properties/launchSettings.json",
+            // "env": {
+            //     "ASPNETCORE_ENVIRONMENT": "Development",
+            //     "ASPNETCORE_URLS": "https://+:7027;http://+:5273"
+            // },
+            "sourceFileMap": {
+                "${workspaceFolder}/src/CashFlow.Api/bin/Debug/net9.0/": "${workspaceFolder}/src/CashFlow.Api",
+            },
+            "justMyCode": true,
+            "suppressJITOptimizations": false
+        }
+    ]
+}
