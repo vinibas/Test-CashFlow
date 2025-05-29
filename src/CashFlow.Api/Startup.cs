@@ -1,3 +1,4 @@
+using CashFlow.Api.Endpoints;
 using HealthChecks.UI.Client;
 using Scalar.AspNetCore;
 
@@ -31,6 +32,7 @@ public class Startup(IConfiguration configuration, IWebHostEnvironment environme
 
         app.UseHttpsRedirection();
 
-        app.MapGroup("api/v1").MapPost("tst", () => "Ok!!");
+        app.MapGroup("api/v1")
+            .MapEntryControlEndpoints();
     }
 }

@@ -1,4 +1,5 @@
 ﻿<Solution>
 	<Project Path="src\CashFlow.Api\CashFlow.Api.csproj" />
 	<Project Path="tests\CashFlow.Api.UnitTests\CashFlow.Api.UnitTests.csproj" />
+	<Project Path="tests\CashFlow.FeatureTests\CashFlow.FeatureTests.csproj" />
 </Solution>
