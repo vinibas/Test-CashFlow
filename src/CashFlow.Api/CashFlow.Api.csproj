@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="CashFlow.Api.UnitTests" />
+    <InternalsVisibleTo Include="CashFlow.FeatureTests" />
   </ItemGroup>
   
   <ItemGroup>
