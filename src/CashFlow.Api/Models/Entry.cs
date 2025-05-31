@@ -6,14 +6,14 @@ public class Entry
 {
     public Guid Id { get; private set; } = Guid.CreateVersion7();
     public decimal Value { get; private set; }
-    public char Type { get; private set; }
+    public EntryType Type { get; private set; }
     public string? Description { get; private set; }
     public DateTime CreatedAtUtc { get; } = DateTime.UtcNow;
 
     // For EF
     private Entry() { }
 
-    public Entry(decimal value, char type, string? description)
+    public Entry(decimal value, EntryType type, string? description)
     {
         Value = value;
         Type = type;
@@ -26,8 +26,10 @@ public class Entry
 
         if (Value <= 0)
             errors.Add(Error.Validation("ValueMustBeGreaterThanZero", "The entry value must be greater than zero."));
-        if (Type is not 'C' and not 'D')
-            errors.Add(Error.Validation("TypesAreDifferentFromCAndD", "The entry type must be only 'C' for credit or 'D' for debit."));
+        if (Value != Math.Round(Value, 2))
+            errors.Add(Error.Validation("ValueIsInAIncorrectFormat", "The monetary value entered is in an incorrect format."));
+        if (Description?.Length > 250)
+            errors.Add(Error.Validation("DescriptionIsGreatherThenMaxLength", "The entry description cannot be longer than 250 characters."));
 
         return errors.Any() ?
             errors : Result.Success();

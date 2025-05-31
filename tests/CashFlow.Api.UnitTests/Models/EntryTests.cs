@@ -9,7 +9,7 @@ public class EntryTests
     [Fact]
     public void Validate_ShouldReturnSuccess_WhenValid()
     {
-        var entry = new Entry(123.45m, 'C', "Test Entry");
+        var entry = new Entry(123.45m, EntryType.Credit, "Test Entry");
 
         var result = entry.Validate();
 
@@ -19,22 +19,44 @@ public class EntryTests
     [Fact]
     public void Validate_ShouldReturnFailure_WhenInvalid()
     {
-        var entryNegative = new Entry(-1m, 'C', "Test Entry");
-        var entryZeroAndType = new Entry(0, 'E', null);
+        var entryNegative = new Entry(-1m, EntryType.Credit, "Test Entry");
+        var entryInvalidMoney = new Entry(12.345m, EntryType.Credit, LoremNET.Source.LoremIpsum[..250]);
+        var entryZeroAndBigDescription = new Entry(0, EntryType.Debit, LoremNET.Source.LoremIpsum[..251]);
 
         var resultNegative = entryNegative.Validate();
-        var resultZeroAndType = entryZeroAndType.Validate();
+        var resultInvalidMoney = entryInvalidMoney.Validate();
+        var resultZeroAndBigDescription = entryZeroAndBigDescription.Validate();
 
-        resultNegative.IsSuccess.Should().BeFalse();
-        resultZeroAndType.IsSuccess.Should().BeFalse();
+        var allResults = new[] {
+            resultNegative,
+            resultInvalidMoney,
+            resultZeroAndBigDescription,
+        };
+        foreach (var result in allResults)
+        {
+            result.IsSuccess.Should().BeFalse();
+            result.Error.Type.Should().Be("Validation");
+        }
 
-        resultNegative.Error.Type.Should().Be("Validation");
-        ErrorDetails[] negativeErrorDetails = [ new ("ValueMustBeGreaterThanZero", "The entry value must be greater than zero.") ];
-        resultNegative.Error.Details.Should().BeEquivalentTo(negativeErrorDetails);
-        ErrorDetails[] zeroAndTypeErrorDetails = [
-            new ("ValueMustBeGreaterThanZero", "The entry value must be greater than zero."),
-            new ("TypesAreDifferentFromCAndD", "The entry type must be only 'C' for credit or 'D' for debit."),
+        ErrorDetails[] negativeErrorDetails = [
+            new ("ValueMustBeGreaterThanZero", "The entry value must be greater than zero.")
         ];
-        resultZeroAndType.Error.Details.Should().BeEquivalentTo(zeroAndTypeErrorDetails);
+        ErrorDetails[] invalidMoneyDetails = [
+            new ("ValueIsInAIncorrectFormat", "The monetary value entered is in an incorrect format.")
+        ];
+        ErrorDetails[] zeroAndBigDescriptionErrorDetails = [
+            new ("ValueMustBeGreaterThanZero", "The entry value must be greater than zero."),
+            new ("DescriptionIsGreatherThenMaxLength", "The entry description cannot be longer than 250 characters.")
+        ];
+        ErrorDetails[] bigDescriptionDetails = [
+        ];
+
+        var allExpectDetails = new[] {
+            (res: resultNegative, msgs: negativeErrorDetails),
+            (res: resultInvalidMoney, msgs: invalidMoneyDetails),
+            (res: resultZeroAndBigDescription, msgs: zeroAndBigDescriptionErrorDetails),
+        };
+        foreach (var (res, msgs) in allExpectDetails)
+            res.Error.Details.Should().BeEquivalentTo(msgs);
     }
 }

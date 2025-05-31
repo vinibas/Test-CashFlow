@@ -72,7 +72,7 @@ public class EntryControlApiStepDefinitions : IClassFixture<TestWebApplicationFa
 
         var allEntries = cx.Entries.ToList();
 
-        allEntries.Should().ContainSingle(e => e.Value == _entryRequest!.Value && e.Type == _entryRequest.Type);
+        allEntries.Should().ContainSingle(e => e.Value == _entryRequest!.Value && (char)e.Type == _entryRequest.Type);
     }
 
     [Then("the entry should not be created")]

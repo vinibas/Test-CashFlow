@@ -13,5 +13,12 @@ public class EntryMap : IEntityTypeConfiguration<Entry>
         builder.Property(e => e.Description)
             .HasMaxLength(250)
             .IsUnicode(false);
+
+        builder.Property(e => e.Type)
+            .HasConversion(t => (char)t, t => (EntryType)t);
+
+
+        builder.HasIndex(e => e.CreatedAtUtc)
+            .HasDatabaseName("IX_Entry_CreatedAtUtc");
     }
 }

@@ -21,18 +21,19 @@ public class EntryControlEndpointsTests
     }
 
     [Theory]
-    [InlineData(1234.56, 'C')]
-    [InlineData(7890.12, 'D')]
-    public async Task EntryControlPostHandlerAsync_ValidEntry_ReturnsCreated(decimal value, char type)
+    [InlineData(1234.56, "C")]
+    [InlineData(7890.12, "D")]
+    public async Task EntryControlPostHandlerAsync_ValidEntry_ReturnsCreated(decimal value, string type)
     {
         const string description = "Some description";
-        var requestModel = new Entry(value, type, description);
+        var requestModel = new EntryVM(value, type, description);
         _uowMH.SetupDbContextMockAsync();
         SetupEntryDaoMockInsertAsync();
 
         var result = await EntryControlEndpoints.EntryControlPostHandlerAsync(_entryDaoMock.Object, _uowMH.UowMock.Object, requestModel);
 
-        result.Should().BeOfType<Created>();
+        var resultType = result.Should().BeOfType<Results<Created, ProblemHttpResult>>().Subject;
+        resultType.Result.Should().BeOfType<Created>();
         VerifyEntryDaoMockIfInsertAsyncWasCalledOnce(value, type, description);
         _uowMH.VerifyIfCommitAsyncWasCalledOnce();
     }
@@ -40,18 +41,18 @@ public class EntryControlEndpointsTests
     private void SetupEntryDaoMockInsertAsync() => _entryDaoMock.Setup(dao => dao.InsertAsync(It.IsAny<Entry>()));
     private void VerifyEntryDaoMockIfInsertAsyncWasCalledNever()
         => _entryDaoMock.Verify(dao => dao.InsertAsync(It.IsAny<Entry>()), Times.Never);
-    private void VerifyEntryDaoMockIfInsertAsyncWasCalledOnce(decimal value, char type, string description)
+    private void VerifyEntryDaoMockIfInsertAsyncWasCalledOnce(decimal value, string type, string description)
         => _entryDaoMock.Verify(dao => dao.InsertAsync(It.Is<Entry>(e => EntryMatches(e, value, type, description))), Times.Once);
-    private static bool EntryMatches(Entry entry, decimal value, char type, string description)
-        => entry.Value == value && entry.Type == type && entry.Description == description;
+    private static bool EntryMatches(Entry entry, decimal value, string type, string description)
+        => entry.Value == value && entry.Type == (EntryType)type[0] && entry.Description == description;
 
     [Theory]
-    [InlineData(0, 'C', "The entry value must be greater than zero.")]
-    [InlineData(-1, 'D', "The entry value must be greater than zero.")]
-    [InlineData(7890.12, 'E', "The entry type must be only 'C' for credit or 'D' for debit.")]
-    public async Task EntryControlPostHandlerAsync_SendingInvalidField_ReturnsProblemDetails(decimal value, char type, string expectedError)
+    [InlineData(0, "C", "The entry value must be greater than zero.")]
+    [InlineData(-1, "D", "The entry value must be greater than zero.")]
+    [InlineData(7890.12, "E", "The entry type must be only 'C' for credit or 'D' for debit.")]
+    public async Task EntryControlPostHandlerAsync_SendingInvalidField_ReturnsProblemDetails(decimal value, string type, string expectedError)
     {
-        var requestModel = new Entry(value, type, null);
+        var requestModel = new EntryVM(value, type, null);
         _uowMH.SetupDbContextMockAsync();
         SetupEntryDaoMockInsertAsync();
 
@@ -60,7 +61,8 @@ public class EntryControlEndpointsTests
         VerifyEntryDaoMockIfInsertAsyncWasCalledNever();
         _uowMH.VerifyIfCommitAsyncWasCalledNever();
 
-        var problemHttpResult = result.Should().BeOfType<ProblemHttpResult>().Subject;
+        var resultType = result.Should().BeOfType<Results<Created, ProblemHttpResult>>().Subject;
+        var problemHttpResult = resultType.Result.Should().BeOfType<ProblemHttpResult>().Subject;
         problemHttpResult.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
         problemHttpResult.ProblemDetails.Status.Should().Be(StatusCodes.Status400BadRequest);
         GetProblemDetailsErrors(problemHttpResult.ProblemDetails)

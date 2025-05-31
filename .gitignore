@@ -674,5 +674,5 @@ FodyWeavers.xsd
 # Local History for Visual Studio Code
 .history/
 
-
-# End of https://mrkandreev.name/snippets/gitignore-generator/#DotnetCore,ASPNETCore,VisualStudio,VisualStudioCode,c#
+# To use only .slnx
+*.sln
