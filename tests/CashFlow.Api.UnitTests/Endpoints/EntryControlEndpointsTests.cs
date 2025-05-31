@@ -5,16 +5,19 @@ using AwesomeAssertions;
 using CashFlow.Api.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using CashFlow.Api.UnitTests.Helpers;
 
 namespace CashFlow.Api.UnitTests.Endpoints;
 
 public class EntryControlEndpointsTests
 {
+    private UnitOfWorkMockHelper _uowMH;
     private Mock<IEntryDao> _entryDaoMock;
 
     public EntryControlEndpointsTests()
     {
         _entryDaoMock = new Mock<IEntryDao>();
+        _uowMH = new UnitOfWorkMockHelper();
     }
 
     [Theory]
@@ -24,12 +27,14 @@ public class EntryControlEndpointsTests
     {
         const string description = "Some description";
         var requestModel = new Entry(value, type, description);
+        _uowMH.SetupDbContextMockAsync();
         SetupEntryDaoMockInsertAsync();
 
-        var result = await EntryControlEndpoints.EntryControlPostHandlerAsync(_entryDaoMock.Object, requestModel);
+        var result = await EntryControlEndpoints.EntryControlPostHandlerAsync(_entryDaoMock.Object, _uowMH.UowMock.Object, requestModel);
 
         result.Should().BeOfType<Created>();
         VerifyEntryDaoMockIfInsertAsyncWasCalledOnce(value, type, description);
+        _uowMH.VerifyIfCommitAsyncWasCalledOnce();
     }
 
     private void SetupEntryDaoMockInsertAsync() => _entryDaoMock.Setup(dao => dao.InsertAsync(It.IsAny<Entry>()));
@@ -47,11 +52,13 @@ public class EntryControlEndpointsTests
     public async Task EntryControlPostHandlerAsync_SendingInvalidField_ReturnsProblemDetails(decimal value, char type, string expectedError)
     {
         var requestModel = new Entry(value, type, null);
+        _uowMH.SetupDbContextMockAsync();
         SetupEntryDaoMockInsertAsync();
 
-        var result = await EntryControlEndpoints.EntryControlPostHandlerAsync(_entryDaoMock.Object, requestModel);
+        var result = await EntryControlEndpoints.EntryControlPostHandlerAsync(_entryDaoMock.Object, _uowMH.UowMock.Object, requestModel);
 
         VerifyEntryDaoMockIfInsertAsyncWasCalledNever();
+        _uowMH.VerifyIfCommitAsyncWasCalledNever();
 
         var problemHttpResult = result.Should().BeOfType<ProblemHttpResult>().Subject;
         problemHttpResult.StatusCode.Should().Be(StatusCodes.Status400BadRequest);

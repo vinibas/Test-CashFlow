@@ -1,4 +1,4 @@
-using CashFlow.Api;
+using CashFlow.Api.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -3,7 +3,7 @@ using HealthChecks.UI.Client;
 using Scalar.AspNetCore;
 using ViniBas.ResultPattern.AspNet;
 
-namespace CashFlow.Api;
+namespace CashFlow.Api.Configurations;
 
 public class Startup(IConfiguration configuration, IWebHostEnvironment environment)
 {
@@ -16,7 +16,7 @@ public class Startup(IConfiguration configuration, IWebHostEnvironment environme
         services.AddProblemDetails();
         services.AddHealthChecks();
         services.AddOpenApi();
-        // services.RegisterServices(Configuration, Environment);
+        services.RegisterServices(Configuration, Environment.IsDevelopment());
     }
     
     public void Configure(WebApplication app)

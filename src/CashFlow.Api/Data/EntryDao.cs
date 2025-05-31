@@ -1,3 +1,4 @@
+using CashFlow.Api.Data;
 using CashFlow.Api.Models;
 
 namespace CashFlow.Api;
@@ -9,8 +10,11 @@ public interface IEntryDao
 
 public class EntryDao : IEntryDao
 {
-    public Task InsertAsync(Entry entry)
-    {
-        throw new NotImplementedException();
-    }
+    private readonly CashFlowContext _context;
+
+    public EntryDao(CashFlowContext context)
+        => _context = context;
+
+    public async Task InsertAsync(Entry entry)
+        => await _context.AddAsync(entry);
 }

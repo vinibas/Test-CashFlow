@@ -4,10 +4,14 @@ namespace CashFlow.Api.Models;
 
 public class Entry
 {
+    public Guid Id { get; private set; } = Guid.CreateVersion7();
     public decimal Value { get; private set; }
     public char Type { get; private set; }
     public string? Description { get; private set; }
     public DateTime CreatedAtUtc { get; } = DateTime.UtcNow;
+
+    // For EF
+    private Entry() { }
 
     public Entry(decimal value, char type, string? description)
     {
