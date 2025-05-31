@@ -1,7 +1,9 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using AwesomeAssertions;
 using CashFlow.Api.Data;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Reqnroll;
 
@@ -23,7 +25,7 @@ public class EntryControlApiStepDefinitions : IClassFixture<TestWebApplicationFa
         _httpClient = factory.CreateClient();
     }
 
-    [Given("I have a valid entry with value {decimal} and type {string}")]
+    [Given("I have a entry with value {decimal} and type {string}")]
     public void GivenIHaveAValidEntryWithValueAndType(decimal value, char type)
     {
         _entryRequest = new (value, type );
@@ -35,10 +37,31 @@ public class EntryControlApiStepDefinitions : IClassFixture<TestWebApplicationFa
         _response = await _httpClient.PostAsJsonAsync(EntryControlEndpoint, _entryRequest);
     }
 
-    [Then("the response status code should be 201")]
-    public void ThenTheResponseStatusCodeShouldBe201()
+    [Then("the response status code should be {int}")]
+    public void ThenTheResponseStatusCodeShouldBe(int statusCode)
     {
-        Assert.Equal(HttpStatusCode.Created, _response?.StatusCode);
+        _response!.StatusCode.Should().Be((HttpStatusCode)statusCode);
+    }
+
+    [Then("the response should be an ErrorDetails with the messages {string}")]
+    public void ThenTheResponseStatusCodeShouldBe(string messages)
+    {
+        var mediaType = _response!.Content.Headers.ContentType?.MediaType;
+        mediaType.Should().Be("application/problem+json");
+
+        var problemDetails = _response.Content.ReadFromJsonAsync<ProblemDetails>().Result;
+        problemDetails.Should().NotBeNull("Response could not be deserialized as ProblemDetails");
+
+        var isSuccessJE = (JsonElement?)problemDetails.Extensions["isSuccess"];
+        isSuccessJE.Should().NotBeNull();
+        isSuccessJE.Value.GetBoolean().Should().BeFalse();
+
+        var errorsJE = (JsonElement?)problemDetails.Extensions["errors"];
+        errorsJE.Should().NotBeNull();
+        var errors = errorsJE.Value.EnumerateArray().Select(e => e.GetString()).ToArray();
+        errors.Should().BeEquivalentTo(messages.Split(','));
+
+        problemDetails!.Detail.Should().Be(messages);
     }
 
     [Then("the entry should be created successfully")]
@@ -50,6 +73,15 @@ public class EntryControlApiStepDefinitions : IClassFixture<TestWebApplicationFa
         var allEntries = cx.Entries.ToList();
 
         allEntries.Should().ContainSingle(e => e.Value == _entryRequest!.Value && e.Type == _entryRequest.Type);
+    }
+
+    [Then("the entry should not be created")]
+    public void ThenTheEntryShouldNotBeCreated()
+    {
+        using var scope = _factory.Services.CreateScope();
+        var cx = scope.ServiceProvider.GetRequiredService<CashFlowContext>();
+
+        cx.Entries.ToList().Should().BeEmpty();
     }
 
     sealed record EntryRequest(decimal Value, char Type);

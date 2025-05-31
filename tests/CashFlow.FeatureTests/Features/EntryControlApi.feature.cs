@@ -128,14 +128,18 @@ namespace CashFlow.FeatureTests.Features
             await this.TestTearDownAsync();
         }
         
-        [Xunit.SkippableFactAttribute(DisplayName="Successfully create a new entry (credit)")]
+        [Xunit.SkippableTheoryAttribute(DisplayName="Successfully create a new entry")]
         [Xunit.TraitAttribute("FeatureTitle", "Entry Control API")]
-        [Xunit.TraitAttribute("Description", "Successfully create a new entry (credit)")]
-        public async global::System.Threading.Tasks.Task SuccessfullyCreateANewEntryCredit()
+        [Xunit.TraitAttribute("Description", "Successfully create a new entry")]
+        [Xunit.InlineDataAttribute("123.45", "\'C\'", new string[0])]
+        [Xunit.InlineDataAttribute("678.90", "\'D\'", new string[0])]
+        public async global::System.Threading.Tasks.Task SuccessfullyCreateANewEntry(string value, string type, string[] exampleTags)
         {
-            string[] tagsOfScenario = ((string[])(null));
+            string[] tagsOfScenario = exampleTags;
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Successfully create a new entry (credit)", null, tagsOfScenario, argumentsOfScenario, featureTags);
+            argumentsOfScenario.Add("value", value);
+            argumentsOfScenario.Add("type", type);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Successfully create a new entry", null, tagsOfScenario, argumentsOfScenario, featureTags);
 #line 7
     this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -147,7 +151,7 @@ namespace CashFlow.FeatureTests.Features
             {
                 await this.ScenarioStartAsync();
 #line 8
-        await testRunner.GivenAsync("I have a valid entry with value 123.45 and type \'C\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+        await testRunner.GivenAsync(string.Format("I have a entry with value {0} and type {1}", value, type), ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 9
         await testRunner.WhenAsync("I send a POST request to Entry Control endpoint with this entry", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
@@ -157,6 +161,48 @@ namespace CashFlow.FeatureTests.Features
 #line hidden
 #line 11
         await testRunner.AndAsync("the entry should be created successfully", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [Xunit.SkippableTheoryAttribute(DisplayName="Fail to create entry with invalid type")]
+        [Xunit.TraitAttribute("FeatureTitle", "Entry Control API")]
+        [Xunit.TraitAttribute("Description", "Fail to create entry with invalid type")]
+        [Xunit.InlineDataAttribute("0", "\'C\'", "\"The entry value must be greater than zero.\"", new string[0])]
+        [Xunit.InlineDataAttribute("123.45", "\'A\'", "\"The entry type must be only \'C\' for credit or \'D\' for debit.\"", new string[0])]
+        public async global::System.Threading.Tasks.Task FailToCreateEntryWithInvalidType(string value, string type, string messages, string[] exampleTags)
+        {
+            string[] tagsOfScenario = exampleTags;
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            argumentsOfScenario.Add("value", value);
+            argumentsOfScenario.Add("type", type);
+            argumentsOfScenario.Add("messages", messages);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Fail to create entry with invalid type", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 18
+    this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 19
+        await testRunner.GivenAsync(string.Format("I have a entry with value {0} and type {1}", value, type), ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 20
+        await testRunner.WhenAsync("I send a POST request to Entry Control endpoint with this entry", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 21
+        await testRunner.ThenAsync("the response status code should be 400", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 22
+        await testRunner.AndAsync(string.Format("the response should be an ErrorDetails with the messages {0}", messages), ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 23
+        await testRunner.AndAsync("the entry should not be created", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
