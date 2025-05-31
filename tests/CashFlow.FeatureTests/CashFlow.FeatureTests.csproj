@@ -6,6 +6,7 @@
     <PackageReference Include="Reqnroll.xUnit" />
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="AwesomeAssertions" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="Xunit" />

@@ -1,14 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
-
   <ItemGroup>
     <InternalsVisibleTo Include="CashFlow.Api.UnitTests" />
     <InternalsVisibleTo Include="CashFlow.FeatureTests" />
   </ItemGroup>
-  
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="Scalar.AspNetCore" />
     <PackageReference Include="AspNetCore.HealthChecks.UI.Client" />
+    <PackageReference Include="ViniBas.ResultPattern.AspNet" />
   </ItemGroup>
-  
 </Project>

@@ -17,21 +17,22 @@ namespace CashFlow.FeatureTests.Features
     
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "2.0.0.0")]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public partial class TestingFeatureFeature : object, Xunit.IClassFixture<TestingFeatureFeature.FixtureData>, Xunit.IAsyncLifetime
+    public partial class EntryControlAPIFeature : object, Xunit.IClassFixture<EntryControlAPIFeature.FixtureData>, Xunit.IAsyncLifetime
     {
         
         private global::Reqnroll.ITestRunner testRunner;
         
         private static string[] featureTags = ((string[])(null));
         
-        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Features", "Testing feature", "This feature is just for test the BDD implementation.", global::Reqnroll.ProgrammingLanguage.CSharp, featureTags);
+        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Features", "Entry Control API", "    As a user of the cash flow system\n    I want to create a new entry (credit or" +
+                " debit) via the API\n    So that I can control my cash flow movements", global::Reqnroll.ProgrammingLanguage.CSharp, featureTags);
         
         private Xunit.Abstractions.ITestOutputHelper _testOutputHelper;
         
-#line 1 "TestingFeature.feature"
+#line 1 "EntryControlApi.feature"
 #line hidden
         
-        public TestingFeatureFeature(TestingFeatureFeature.FixtureData fixtureData, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
+        public EntryControlAPIFeature(EntryControlAPIFeature.FixtureData fixtureData, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
         {
             this._testOutputHelper = testOutputHelper;
         }
@@ -127,16 +128,16 @@ namespace CashFlow.FeatureTests.Features
             await this.TestTearDownAsync();
         }
         
-        [Xunit.SkippableFactAttribute(DisplayName="Should return 201")]
-        [Xunit.TraitAttribute("FeatureTitle", "Testing feature")]
-        [Xunit.TraitAttribute("Description", "Should return 201")]
-        public async global::System.Threading.Tasks.Task ShouldReturn201()
+        [Xunit.SkippableFactAttribute(DisplayName="Successfully create a new entry (credit)")]
+        [Xunit.TraitAttribute("FeatureTitle", "Entry Control API")]
+        [Xunit.TraitAttribute("Description", "Successfully create a new entry (credit)")]
+        public async global::System.Threading.Tasks.Task SuccessfullyCreateANewEntryCredit()
         {
             string[] tagsOfScenario = ((string[])(null));
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Should return 201", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 5
-this.ScenarioInitialize(scenarioInfo);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Successfully create a new entry (credit)", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 7
+    this.ScenarioInitialize(scenarioInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
             {
@@ -145,11 +146,17 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 await this.ScenarioStartAsync();
-#line 6
-    await testRunner.GivenAsync("I call some endpoint", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line 8
+        await testRunner.GivenAsync("I have a valid entry with value 123.45 and type \'C\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
-#line 7
-    await testRunner.ThenAsync("it should return 201", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line 9
+        await testRunner.WhenAsync("I send a POST request to Entry Control endpoint with this entry", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 10
+        await testRunner.ThenAsync("the response status code should be 201", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 11
+        await testRunner.AndAsync("the entry should be created successfully", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
@@ -162,12 +169,12 @@ this.ScenarioInitialize(scenarioInfo);
             
             async global::System.Threading.Tasks.Task Xunit.IAsyncLifetime.InitializeAsync()
             {
-                await TestingFeatureFeature.FeatureSetupAsync();
+                await EntryControlAPIFeature.FeatureSetupAsync();
             }
             
             async global::System.Threading.Tasks.Task Xunit.IAsyncLifetime.DisposeAsync()
             {
-                await TestingFeatureFeature.FeatureTearDownAsync();
+                await EntryControlAPIFeature.FeatureTearDownAsync();
             }
         }
     }

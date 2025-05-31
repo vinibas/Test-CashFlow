@@ -1,11 +1,20 @@
-using Microsoft.AspNetCore.Http.HttpResults;
+using CashFlow.Api.Models;
+using ViniBas.ResultPattern.AspNet.ResultMinimal;
 
 namespace CashFlow.Api.Endpoints;
 
 public static class EntryControlEndpoints
 {
     public static void MapEntryControlEndpoints(this IEndpointRouteBuilder routeBuilder)
-        => routeBuilder.MapPost("EntryControl", EntryControlPostHandler);
+        => routeBuilder.MapPost("EntryControl", EntryControlPostHandlerAsync);
 
-    internal static IResult EntryControlPostHandler() => TypedResults.Created();
+    internal static async Task<IResult> EntryControlPostHandlerAsync(IEntryDao entryDao, Entry entry)
+    {
+        var result = entry.Validate();
+
+        if (result.IsSuccess)
+            await entryDao.InsertAsync(entry);
+
+        return result.Match(r => TypedResults.Created());
+    }
 }

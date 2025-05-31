@@ -1,6 +1,7 @@
 using CashFlow.Api.Endpoints;
 using HealthChecks.UI.Client;
 using Scalar.AspNetCore;
+using ViniBas.ResultPattern.AspNet;
 
 namespace CashFlow.Api;
 
@@ -12,6 +13,7 @@ public class Startup(IConfiguration configuration, IWebHostEnvironment environme
     
     public void ConfigureServices(IServiceCollection services)
     {
+        services.AddProblemDetails();
         services.AddHealthChecks();
         services.AddOpenApi();
         // services.RegisterServices(Configuration, Environment);
@@ -19,6 +21,10 @@ public class Startup(IConfiguration configuration, IWebHostEnvironment environme
     
     public void Configure(WebApplication app)
     {
+        GlobalConfiguration.UseProblemDetails = true;
+        app.UseExceptionHandler();
+        app.UseStatusCodePages();
+
         app.MapHealthChecks("/_health", new()
         {
             ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
