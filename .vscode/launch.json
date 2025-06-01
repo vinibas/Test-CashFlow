@@ -23,16 +23,16 @@
             "args": [],
             "cwd": "${workspaceFolder}/src/CashFlow.Api",
             "stopAtEntry": false,
-            "serverReadyAction": {
-                "action": "openExternally",
-                "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
-            },
+            // "serverReadyAction": {
+            //     "action": "openExternally",
+            //     "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+            // },
             "launchSettingsProfile": "Development",
             "launchSettingsFilePath": "${workspaceFolder}/src/CashFlow.Api/Properties/launchSettings.json",
-            "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development",
+            // "env": {
+            //     "ASPNETCORE_ENVIRONMENT": "Development",
             //     "ASPNETCORE_URLS": "https://+:7027;http://+:5273"
-            },
+            // },
             "sourceFileMap": {
                 "${workspaceFolder}/src/CashFlow.Api/bin/Debug/net9.0/": "${workspaceFolder}/src/CashFlow.Api",
             },
