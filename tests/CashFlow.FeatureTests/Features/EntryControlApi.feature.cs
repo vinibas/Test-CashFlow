@@ -166,19 +166,19 @@ namespace CashFlow.FeatureTests.Features
             await this.ScenarioCleanupAsync();
         }
         
-        [Xunit.SkippableTheoryAttribute(DisplayName="Fail to create entry with invalid type")]
+        [Xunit.SkippableTheoryAttribute(DisplayName="Fail to create entry with invalid value or type")]
         [Xunit.TraitAttribute("FeatureTitle", "Entry Control API")]
-        [Xunit.TraitAttribute("Description", "Fail to create entry with invalid type")]
+        [Xunit.TraitAttribute("Description", "Fail to create entry with invalid value or type")]
         [Xunit.InlineDataAttribute("0", "\'C\'", "\"The entry value must be greater than zero.\"", new string[0])]
         [Xunit.InlineDataAttribute("123.45", "\'A\'", "\"The entry type must be only \'C\' for credit or \'D\' for debit.\"", new string[0])]
-        public async global::System.Threading.Tasks.Task FailToCreateEntryWithInvalidType(string value, string type, string messages, string[] exampleTags)
+        public async global::System.Threading.Tasks.Task FailToCreateEntryWithInvalidValueOrType(string value, string type, string messages, string[] exampleTags)
         {
             string[] tagsOfScenario = exampleTags;
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
             argumentsOfScenario.Add("value", value);
             argumentsOfScenario.Add("type", type);
             argumentsOfScenario.Add("messages", messages);
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Fail to create entry with invalid type", null, tagsOfScenario, argumentsOfScenario, featureTags);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Fail to create entry with invalid value or type", null, tagsOfScenario, argumentsOfScenario, featureTags);
 #line 18
     this.ScenarioInitialize(scenarioInfo);
 #line hidden
