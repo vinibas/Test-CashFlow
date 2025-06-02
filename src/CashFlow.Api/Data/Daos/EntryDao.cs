@@ -1,7 +1,7 @@
 using CashFlow.Api.Data;
 using CashFlow.Api.Models;
 
-namespace CashFlow.Api;
+namespace CashFlow.Api.Data.Daos;
 
 public interface IEntryDao
 {

@@ -11,6 +11,8 @@
   </ItemGroup>
   <ItemGroup>
     <Using Include="Xunit" />
+    <Using Include="AwesomeAssertions" />
+    <Using Include="Moq" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\CashFlow.Api\CashFlow.Api.csproj" />

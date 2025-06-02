@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Threading.Tasks;
 using AwesomeAssertions;
 using CashFlow.Api.Data;
 using Microsoft.AspNetCore.Mvc;
@@ -37,19 +38,19 @@ public class EntryControlApiStepDefinitions : IClassFixture<TestWebApplicationFa
         _response = await _httpClient.PostAsJsonAsync(EntryControlEndpoint, _entryRequest);
     }
 
-    [Then("the response status code should be {int}")]
-    public void ThenTheResponseStatusCodeShouldBe(int statusCode)
+    [Then("the response status code of the Entry control endpoint should be {int}")]
+    public void ThenTheResponseStatusCodeOfTheEntryControlEndpointShouldBe(int statusCode)
     {
         _response!.StatusCode.Should().Be((HttpStatusCode)statusCode);
     }
 
     [Then("the response should be an ErrorDetails with the messages {string}")]
-    public void ThenTheResponseStatusCodeShouldBe(string messages)
+    public async Task ThenTheResponseStatusCodeShouldBe(string messages)
     {
         var mediaType = _response!.Content.Headers.ContentType?.MediaType;
         mediaType.Should().Be("application/problem+json");
 
-        var problemDetails = _response.Content.ReadFromJsonAsync<ProblemDetails>().Result;
+        var problemDetails = await _response.Content.ReadFromJsonAsync<ProblemDetails>();
         problemDetails.Should().NotBeNull("Response could not be deserialized as ProblemDetails");
 
         var isSuccessJE = (JsonElement?)problemDetails.Extensions["isSuccess"];

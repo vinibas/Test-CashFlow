@@ -17,22 +17,23 @@ namespace CashFlow.FeatureTests.Features
     
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "2.0.0.0")]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public partial class EntryControlAPIFeature : object, Xunit.IClassFixture<EntryControlAPIFeature.FixtureData>, Xunit.IAsyncLifetime
+    public partial class DailyConsolidatedReportFeature : object, Xunit.IClassFixture<DailyConsolidatedReportFeature.FixtureData>, Xunit.IAsyncLifetime
     {
         
         private global::Reqnroll.ITestRunner testRunner;
         
         private static string[] featureTags = ((string[])(null));
         
-        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Features", "Entry Control API", "    As a user of the cash flow system\n    I want to create a new entry (credit or" +
-                " debit) via the API\n    So that I can control my cash flow movements", global::Reqnroll.ProgrammingLanguage.CSharp, featureTags);
+        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Features", "Daily Consolidated Report", "    As a user of the cash flow system\n    I want to obtain a daily consolidated r" +
+                "eport\n    So that I can view the total credits, debits, and the overall total fo" +
+                "r a specific day", global::Reqnroll.ProgrammingLanguage.CSharp, featureTags);
         
         private Xunit.Abstractions.ITestOutputHelper _testOutputHelper;
         
-#line 1 "EntryControlApi.feature"
+#line 1 "DailyConsolidatedReport.feature"
 #line hidden
         
-        public EntryControlAPIFeature(EntryControlAPIFeature.FixtureData fixtureData, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
+        public DailyConsolidatedReportFeature(DailyConsolidatedReportFeature.FixtureData fixtureData, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
         {
             this._testOutputHelper = testOutputHelper;
         }
@@ -128,18 +129,19 @@ namespace CashFlow.FeatureTests.Features
             await this.TestTearDownAsync();
         }
         
-        [Xunit.SkippableTheoryAttribute(DisplayName="Successfully create a new entry")]
-        [Xunit.TraitAttribute("FeatureTitle", "Entry Control API")]
-        [Xunit.TraitAttribute("Description", "Successfully create a new entry")]
-        [Xunit.InlineDataAttribute("123.45", "\'C\'", new string[0])]
-        [Xunit.InlineDataAttribute("678.90", "\'D\'", new string[0])]
-        public async global::System.Threading.Tasks.Task SuccessfullyCreateANewEntry(string value, string type, string[] exampleTags)
+        [Xunit.SkippableTheoryAttribute(DisplayName="Successfully generate daily consolidated report")]
+        [Xunit.TraitAttribute("FeatureTitle", "Daily Consolidated Report")]
+        [Xunit.TraitAttribute("Description", "Successfully generate daily consolidated report")]
+        [Xunit.InlineDataAttribute("\"2025-05-31\"", "200.00", "100.00", "true", new string[0])]
+        public async global::System.Threading.Tasks.Task SuccessfullyGenerateDailyConsolidatedReport(string date, string credits, string debits, string closed, string[] exampleTags)
         {
             string[] tagsOfScenario = exampleTags;
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            argumentsOfScenario.Add("value", value);
-            argumentsOfScenario.Add("type", type);
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Successfully create a new entry", null, tagsOfScenario, argumentsOfScenario, featureTags);
+            argumentsOfScenario.Add("date", date);
+            argumentsOfScenario.Add("credits", credits);
+            argumentsOfScenario.Add("debits", debits);
+            argumentsOfScenario.Add("closed", closed);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Successfully generate daily consolidated report", null, tagsOfScenario, argumentsOfScenario, featureTags);
 #line 7
     this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -151,58 +153,32 @@ namespace CashFlow.FeatureTests.Features
             {
                 await this.ScenarioStartAsync();
 #line 8
-        await testRunner.GivenAsync(string.Format("I have a entry with value {0} and type {1}", value, type), ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+        await testRunner.GivenAsync(string.Format("{0} as a consultation date", date), ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 9
-        await testRunner.WhenAsync("I send a POST request to Entry Control endpoint with this entry", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+        await testRunner.AndAsync(string.Format("there are TotalCredits {0} and TotalDebits {1} values for this date", credits, debits), ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 10
-        await testRunner.ThenAsync("the response status code of the Entry control endpoint should be 201", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+        await testRunner.WhenAsync("I request the consolidated report for the consultation date", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 11
-        await testRunner.AndAsync("the entry should be created successfully", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+        await testRunner.ThenAsync("the response status code of the Consolidated endpoint should be 200", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-            }
-            await this.ScenarioCleanupAsync();
-        }
-        
-        [Xunit.SkippableTheoryAttribute(DisplayName="Fail to create entry with invalid value or type")]
-        [Xunit.TraitAttribute("FeatureTitle", "Entry Control API")]
-        [Xunit.TraitAttribute("Description", "Fail to create entry with invalid value or type")]
-        [Xunit.InlineDataAttribute("0", "\'C\'", "\"The entry value must be greater than zero.\"", new string[0])]
-        [Xunit.InlineDataAttribute("123.45", "\'A\'", "\"The entry type must be only \'C\' for credit or \'D\' for debit.\"", new string[0])]
-        public async global::System.Threading.Tasks.Task FailToCreateEntryWithInvalidValueOrType(string value, string type, string messages, string[] exampleTags)
-        {
-            string[] tagsOfScenario = exampleTags;
-            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            argumentsOfScenario.Add("value", value);
-            argumentsOfScenario.Add("type", type);
-            argumentsOfScenario.Add("messages", messages);
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Fail to create entry with invalid value or type", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 18
-    this.ScenarioInitialize(scenarioInfo);
+                global::Reqnroll.Table table1 = new global::Reqnroll.Table(new string[] {
+                            "date",
+                            "totalCredits",
+                            "totalDebits",
+                            "isClosed"});
+                table1.AddRow(new string[] {
+                            string.Format("{0}", date),
+                            string.Format("{0}", credits),
+                            string.Format("{0}", debits),
+                            string.Format("{0}", closed)});
+#line 12
+        await testRunner.AndAsync("the report should contain:", ((string)(null)), table1, "And ");
 #line hidden
-            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
-            {
-                testRunner.SkipScenario();
-            }
-            else
-            {
-                await this.ScenarioStartAsync();
-#line 19
-        await testRunner.GivenAsync(string.Format("I have a entry with value {0} and type {1}", value, type), ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
-#line hidden
-#line 20
-        await testRunner.WhenAsync("I send a POST request to Entry Control endpoint with this entry", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
-#line 21
-        await testRunner.ThenAsync("the response status code of the Entry control endpoint should be 400", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
-#line hidden
-#line 22
-        await testRunner.AndAsync(string.Format("the response should be an ErrorDetails with the messages {0}", messages), ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
-#line hidden
-#line 23
-        await testRunner.AndAsync("the entry should not be created", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line 15
+        await testRunner.AndAsync("the NetBalance value should be the result of credits-debits", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
@@ -215,12 +191,12 @@ namespace CashFlow.FeatureTests.Features
             
             async global::System.Threading.Tasks.Task Xunit.IAsyncLifetime.InitializeAsync()
             {
-                await EntryControlAPIFeature.FeatureSetupAsync();
+                await DailyConsolidatedReportFeature.FeatureSetupAsync();
             }
             
             async global::System.Threading.Tasks.Task Xunit.IAsyncLifetime.DisposeAsync()
             {
-                await EntryControlAPIFeature.FeatureTearDownAsync();
+                await DailyConsolidatedReportFeature.FeatureTearDownAsync();
             }
         }
     }

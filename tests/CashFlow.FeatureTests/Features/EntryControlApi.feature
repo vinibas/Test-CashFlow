@@ -7,7 +7,7 @@
     Scenario Outline: Successfully create a new entry
         Given I have a entry with value <value> and type <type>
         When I send a POST request to Entry Control endpoint with this entry
-        Then the response status code should be 201
+        Then the response status code of the Entry control endpoint should be 201
         And the entry should be created successfully
 
         Examples:
@@ -18,7 +18,7 @@
     Scenario Outline: Fail to create entry with invalid value or type
         Given I have a entry with value <value> and type <type>
         When I send a POST request to Entry Control endpoint with this entry
-        Then the response status code should be 400
+        Then the response status code of the Entry control endpoint should be 400
         And the response should be an ErrorDetails with the messages <messages>
         And the entry should not be created
         

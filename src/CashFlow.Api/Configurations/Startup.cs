@@ -77,6 +77,7 @@ public class Startup(IConfiguration configuration, IWebHostEnvironment environme
         app.UseHttpsRedirection();
 
         app.MapGroup("api/v1")
-            .MapEntryControlEndpoints();
+            .MapEntryControlEndpoints()
+            .MapDailyConsolidatedReportEndpoints();
     }
 }

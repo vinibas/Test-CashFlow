@@ -1,4 +1,5 @@
 using CashFlow.Api.Data;
+using CashFlow.Api.Data.Daos;
 using CashFlow.Api.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using ViniBas.ResultPattern.AspNet.ResultMinimal;
@@ -7,8 +8,11 @@ namespace CashFlow.Api.Endpoints;
 
 public static class EntryControlEndpoints
 {
-    public static void MapEntryControlEndpoints(this IEndpointRouteBuilder routeBuilder)
-        => routeBuilder.MapPost("EntryControl", EntryControlPostHandlerAsync);
+    public static IEndpointRouteBuilder MapEntryControlEndpoints(this IEndpointRouteBuilder routeBuilder)
+    {
+        routeBuilder.MapPost("EntryControl", EntryControlPostHandlerAsync);
+        return routeBuilder;
+    }
 
     internal static async Task<Results<Created, ProblemHttpResult>> EntryControlPostHandlerAsync(IEntryDao entryDao, IUnitOfWork uow, EntryVM entryVM)
     {

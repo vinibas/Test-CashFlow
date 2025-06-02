@@ -4,7 +4,7 @@ namespace CashFlow.Api.Models;
 
 public class Entry
 {
-    public Guid Id { get; private set; } = Guid.CreateVersion7();
+    public Guid Id { get; } = Guid.CreateVersion7();
     public decimal Value { get; private set; }
     public EntryType Type { get; private set; }
     public string? Description { get; private set; }

@@ -18,7 +18,15 @@ public class EntryMap : IEntityTypeConfiguration<Entry>
             .HasConversion(t => (char)t, t => (EntryType)t);
 
 
+        builder.Property<long>("LineNumber")
+            .ValueGeneratedOnAdd();
+
+
         builder.HasIndex(e => e.CreatedAtUtc)
             .HasDatabaseName("IX_Entry_CreatedAtUtc");
+
+        builder.HasIndex("LineNumber")
+            .HasDatabaseName("IX_Entry_LineNumber")
+            .IsUnique();
     }
 }

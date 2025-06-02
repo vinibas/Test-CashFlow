@@ -1,4 +1,3 @@
-using AwesomeAssertions;
 using CashFlow.Api.Models;
 using static ViniBas.ResultPattern.ResultObjects.Error;
 
