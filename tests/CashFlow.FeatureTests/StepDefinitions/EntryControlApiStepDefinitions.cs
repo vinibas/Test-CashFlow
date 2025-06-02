@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using System.Threading.Tasks;
 using AwesomeAssertions;
 using CashFlow.Api.Data;
 using Microsoft.AspNetCore.Mvc;
@@ -11,7 +10,7 @@ using Reqnroll;
 namespace CashFlow.FeatureTests.StepDefinitions;
 
 [Binding]
-public class EntryControlApiStepDefinitions : IClassFixture<TestWebApplicationFactory<Program>>
+public class EntryControlApiStepDefinitions : IClassFixture<TestWebApplicationFactory<Program>>, IDisposable
 {
     private const string EntryControlEndpoint = "/api/v1/EntryControl";
     private readonly TestWebApplicationFactory<Program> _factory;
@@ -24,6 +23,16 @@ public class EntryControlApiStepDefinitions : IClassFixture<TestWebApplicationFa
     {
         _factory = factory;
         _httpClient = factory.CreateClient();
+
+        CleanDatabase();
+    }
+
+    private void CleanDatabase()
+    {
+        using var scope = _factory.Services.CreateScope();
+        var cx = scope.ServiceProvider.GetRequiredService<CashFlowContext>();
+        cx.Entries.RemoveRange(cx.Entries);
+        cx.SaveChanges();
     }
 
     [Given("I have a entry with value {decimal} and type {string}")]
@@ -83,6 +92,12 @@ public class EntryControlApiStepDefinitions : IClassFixture<TestWebApplicationFa
         var cx = scope.ServiceProvider.GetRequiredService<CashFlowContext>();
 
         cx.Entries.ToList().Should().BeEmpty();
+    }
+
+    public void Dispose()
+    {
+        _httpClient.Dispose();
+        _factory.Dispose();
     }
 
     sealed record EntryRequest(decimal Value, char Type);

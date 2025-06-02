@@ -132,7 +132,9 @@ namespace CashFlow.FeatureTests.Features
         [Xunit.SkippableTheoryAttribute(DisplayName="Successfully generate daily consolidated report")]
         [Xunit.TraitAttribute("FeatureTitle", "Daily Consolidated Report")]
         [Xunit.TraitAttribute("Description", "Successfully generate daily consolidated report")]
-        [Xunit.InlineDataAttribute("\"2025-05-31\"", "200.00", "100.00", "true", new string[0])]
+        [Xunit.InlineDataAttribute("\"2025-04-01\"", "200.00", "100.00", "true", new string[0])]
+        [Xunit.InlineDataAttribute("\"2025-04-02\"", "100.00", "200.00", "true", new string[0])]
+        [Xunit.InlineDataAttribute("\"Today\"", "100.00", "50.00", "false", new string[0])]
         public async global::System.Threading.Tasks.Task SuccessfullyGenerateDailyConsolidatedReport(string date, string credits, string debits, string closed, string[] exampleTags)
         {
             string[] tagsOfScenario = exampleTags;
@@ -179,6 +181,94 @@ namespace CashFlow.FeatureTests.Features
 #line hidden
 #line 15
         await testRunner.AndAsync("the NetBalance value should be the result of credits-debits", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [Xunit.SkippableTheoryAttribute(DisplayName="Generate report for date with no entries")]
+        [Xunit.TraitAttribute("FeatureTitle", "Daily Consolidated Report")]
+        [Xunit.TraitAttribute("Description", "Generate report for date with no entries")]
+        [Xunit.InlineDataAttribute("\"2025-04-01\"", "true", new string[0])]
+        public async global::System.Threading.Tasks.Task GenerateReportForDateWithNoEntries(string date, string closed, string[] exampleTags)
+        {
+            string[] tagsOfScenario = exampleTags;
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            argumentsOfScenario.Add("date", date);
+            argumentsOfScenario.Add("closed", closed);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Generate report for date with no entries", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 25
+    this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 26
+        await testRunner.GivenAsync(string.Format("{0} as a consultation date", date), ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 27
+        await testRunner.AndAsync("there are no entries for this date", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 28
+        await testRunner.WhenAsync("I request the consolidated report for the consultation date", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 29
+        await testRunner.ThenAsync("the response status code of the Consolidated endpoint should be 200", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+                global::Reqnroll.Table table2 = new global::Reqnroll.Table(new string[] {
+                            "date",
+                            "totalCredits",
+                            "totalDebits",
+                            "isClosed"});
+                table2.AddRow(new string[] {
+                            string.Format("{0}", date),
+                            "0.00",
+                            "0.00",
+                            string.Format("{0}", closed)});
+#line 30
+        await testRunner.AndAsync("the report should contain:", ((string)(null)), table2, "And ");
+#line hidden
+#line 33
+        await testRunner.AndAsync("the NetBalance value should be the result of credits-debits", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [Xunit.SkippableFactAttribute(DisplayName="Fail to request report with invalid date")]
+        [Xunit.TraitAttribute("FeatureTitle", "Daily Consolidated Report")]
+        [Xunit.TraitAttribute("Description", "Fail to request report with invalid date")]
+        public async global::System.Threading.Tasks.Task FailToRequestReportWithInvalidDate()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Fail to request report with invalid date", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 39
+    this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 40
+        await testRunner.GivenAsync("\"invalid\" as a consultation date", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 41
+        await testRunner.WhenAsync("I request the consolidated report for the consultation date", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 42
+        await testRunner.ThenAsync("the response status code of the Consolidated endpoint should be 400", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 43
+        await testRunner.AndAsync("the response should contain an error message \"The date format is invalid. Use \'yy" +
+                        "yy-MM-dd\'.\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
