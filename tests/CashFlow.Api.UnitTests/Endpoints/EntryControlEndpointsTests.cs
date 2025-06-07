@@ -25,25 +25,30 @@ public class EntryControlEndpointsTests
     public async Task EntryControlPostHandlerAsync_ValidEntry_ReturnsCreated(decimal value, string type)
     {
         const string description = "Some description";
+        var transactionAt = DateTime.UtcNow;
+        var transactionAtStr = transactionAt.ToString("o");
         var requestModel = new EntryVM(value, type, description);
         _uowMH.SetupDbContextMockAsync();
         SetupEntryDaoMockInsertAsync();
 
-        var result = await EntryControlEndpoints.EntryControlPostHandlerAsync(_entryDaoMock.Object, _uowMH.UowMock.Object, requestModel);
+        var result = await EntryControlEndpoints.EntryControlPostHandlerAsync(_entryDaoMock.Object, _uowMH.UowMock.Object, requestModel, transactionAtStr);
 
         var resultType = result.Should().BeOfType<Results<Created, ProblemHttpResult>>().Subject;
         resultType.Result.Should().BeOfType<Created>();
-        VerifyEntryDaoMockIfInsertAsyncWasCalledOnce(value, type, description);
+        VerifyEntryDaoMockIfInsertAsyncWasCalledOnce(value, type, description, transactionAt);
         _uowMH.VerifyIfCommitAsyncWasCalledOnce();
     }
 
     private void SetupEntryDaoMockInsertAsync() => _entryDaoMock.Setup(dao => dao.InsertAsync(It.IsAny<Entry>()));
     private void VerifyEntryDaoMockIfInsertAsyncWasCalledNever()
         => _entryDaoMock.Verify(dao => dao.InsertAsync(It.IsAny<Entry>()), Times.Never);
-    private void VerifyEntryDaoMockIfInsertAsyncWasCalledOnce(decimal value, string type, string description)
-        => _entryDaoMock.Verify(dao => dao.InsertAsync(It.Is<Entry>(e => EntryMatches(e, value, type, description))), Times.Once);
-    private static bool EntryMatches(Entry entry, decimal value, string type, string description)
-        => entry.Value == value && entry.Type == (EntryType)type[0] && entry.Description == description;
+    private void VerifyEntryDaoMockIfInsertAsyncWasCalledOnce(decimal value, string type, string description, DateTime transactionAt)
+        => _entryDaoMock.Verify(dao => dao.InsertAsync(It.Is<Entry>(e => EntryMatches(e, value, type, description, transactionAt))), Times.Once);
+    private static bool EntryMatches(Entry entry, decimal value, string type, string description, DateTime transactionAt)
+        => entry.Value == value &&
+            entry.Type == (EntryType)type[0] &&
+            entry.Description == description &&
+            entry.TransactionAtUtc == transactionAt;
 
     [Theory]
     [InlineData(0, "C", "The entry value must be greater than zero.")]
@@ -55,7 +60,7 @@ public class EntryControlEndpointsTests
         _uowMH.SetupDbContextMockAsync();
         SetupEntryDaoMockInsertAsync();
 
-        var result = await EntryControlEndpoints.EntryControlPostHandlerAsync(_entryDaoMock.Object, _uowMH.UowMock.Object, requestModel);
+        var result = await EntryControlEndpoints.EntryControlPostHandlerAsync(_entryDaoMock.Object, _uowMH.UowMock.Object, requestModel, null);
 
         VerifyEntryDaoMockIfInsertAsyncWasCalledNever();
         _uowMH.VerifyIfCommitAsyncWasCalledNever();

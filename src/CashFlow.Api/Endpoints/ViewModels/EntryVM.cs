@@ -1,4 +1,3 @@
-using CashFlow.Api.Models;
 using ViniBas.ResultPattern.ResultObjects;
 
 namespace CashFlow.Api.Endpoints;

@@ -8,16 +8,18 @@ public class Entry
     public decimal Value { get; private set; }
     public EntryType Type { get; private set; }
     public string? Description { get; private set; }
+    public DateTime TransactionAtUtc { get; private set; }
     public DateTime CreatedAtUtc { get; } = DateTime.UtcNow;
 
     // For EF
     private Entry() { }
 
-    public Entry(decimal value, EntryType type, string? description)
+    public Entry(decimal value, EntryType type, string? description, DateTime? transactionAtUtc)
     {
         Value = value;
         Type = type;
         Description = description;
+        TransactionAtUtc = transactionAtUtc ?? CreatedAtUtc;
     }
 
     public Result Validate()

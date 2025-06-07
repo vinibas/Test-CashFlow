@@ -20,7 +20,7 @@ public static class DailyConsolidatedReportEndpoints
     {
         if (!DateOnly.TryParse(date, out var dateDO))
             return Error
-                .Validation("InvalidFormatDate", "The date format is invalid. Use 'yyyy-MM-dd'.")
+                .Validation("InvalidFormatDateOnly", "The date format is invalid. Use 'yyyy-MM-dd'.")
                 .ToProblemDetailsResult();
 
         var consolidated = await dailyConsolidatedDao.GetConsolidatedUpdatedAsync(dateDO);
