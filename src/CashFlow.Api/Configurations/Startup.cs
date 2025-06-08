@@ -47,9 +47,9 @@ public class Startup(IConfiguration configuration, IWebHostEnvironment environme
 
         services.AddProblemDetails();
         services.AddHealthChecks()
-            .AddNpgSql(conString);
-            // .AddUrlGroup(new Uri(seqHealthUrl), name: "seq", failureStatus: HealthStatus.Degraded)
-            // .AddSeqPublisher((options) => { options.Endpoint = seqEndpoint; });
+            .AddNpgSql(conString)
+            .AddUrlGroup(new Uri(seqHealthUrl), name: "seq", failureStatus: HealthStatus.Degraded)
+            .AddSeqPublisher((options) => { options.Endpoint = seqEndpoint; });
         services.AddOpenApi();
         services.RegisterServices(Configuration, Environment.IsDevelopment());
     }
