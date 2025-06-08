@@ -16,6 +16,10 @@ public class Entry
 
     public Entry(decimal value, EntryType type, string? description, DateTime? transactionAtUtc)
     {
+        // If Kind doesn't specify a Kind, then Postgresql throws a exception
+        if (transactionAtUtc.HasValue && transactionAtUtc.Value.Kind == DateTimeKind.Unspecified)
+            transactionAtUtc = DateTime.SpecifyKind(transactionAtUtc.Value, DateTimeKind.Utc);
+        
         Value = value;
         Type = type;
         Description = description;
