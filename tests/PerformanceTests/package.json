@@ -1,0 +1,17 @@
+{
+  "name": "CashFlowPerformanceTests",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "load": "docker run --rm -i --user $(id -u):$(id -g) -v $(pwd):/src --workdir /src -e K6_BASE_URL=${K6_BASE_URL_ENV:-https://localhost:7027} --network=host grafana/k6 run /src/scripts/script-load.js --insecure-skip-tls-verify --out json=/src/results/test.json"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.11.0",
+  "dependencies": {
+    "browserify": "^17.0.1",
+    "k6": "^0.0.0"
+  }
+}
