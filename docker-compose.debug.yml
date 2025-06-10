@@ -1,0 +1,6 @@
+services:
+  cashflow-api:
+    image: cashflow-api
+    build:
+      args:
+        - BUILD_CONFIGURATION=Debug

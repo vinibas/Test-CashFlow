@@ -1,5 +1,7 @@
+using CashFlow.Api.Data;
 using CashFlow.Api.Endpoints;
 using HealthChecks.UI.Client;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Scalar.AspNetCore;
 using Serilog;
@@ -57,7 +59,9 @@ public class Startup(IConfiguration configuration, IWebHostEnvironment environme
     public void Configure(WebApplication app)
     {
         GlobalConfiguration.UseProblemDetails = true;
-        
+
+        ApplyMigrationsIfNotInProduction(app);
+
         app.UseExceptionHandler();
         app.UseStatusCodePages();
 
@@ -68,16 +72,23 @@ public class Startup(IConfiguration configuration, IWebHostEnvironment environme
             ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
         });
 
-        if (Environment.IsDevelopment())
-        {
-            app.MapOpenApi();
-            app.MapScalarApiReference("/");
-        }
+        app.MapOpenApi();
+        app.MapScalarApiReference("/");
 
         app.UseHttpsRedirection();
 
         app.MapGroup("api/v1")
             .MapEntryControlEndpoints()
             .MapDailyConsolidatedReportEndpoints();
+    }
+
+    private void ApplyMigrationsIfNotInProduction(WebApplication app)
+    {
+        if (!Environment.IsProduction())
+        {
+            using var scope = app.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<CashFlowContext>();
+            db.Database.Migrate();
+        }
     }
 }

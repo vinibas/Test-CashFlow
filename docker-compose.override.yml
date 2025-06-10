@@ -1,0 +1,8 @@
+services:
+  cashflow-api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8090
+    ports:
+      - "8090:8090"
+

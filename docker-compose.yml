@@ -1,0 +1,26 @@
+services:
+  cashflow-api:
+    image: cashflow-api
+    build:
+      context: .
+      dockerfile: src/CashFlow.Api/Dockerfile
+    container_name: cashflow-api
+    depends_on:
+      dbnpgsql:
+        condition: service_healthy
+    ports:
+      - "8090:8090"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Staging
+      - ConnectionStrings__CashFlowDatabase=Host=dbnpgsql;Database=CashFlowDb;Username=postgres;Password=admin
+      - Serilog__WriteTo__1__Name=Seq
+      - Serilog__WriteTo__1__Args__serverUrl=http://seq:5341
+      - Seq__HealthUrl=http://seq:8082/health
+    networks:
+      - evaluation-network
+    tty: true
+
+networks:
+  evaluation-network:
+    external: false
+  

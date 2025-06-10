@@ -1,0 +1,42 @@
+services:
+
+  dbnpgsql:
+    image: postgres:latest
+    container_name: dbnpgsql
+    environment:
+      POSTGRES_DB: CashFlowDb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5432:5432"
+    networks:
+      - evaluation-network
+    volumes:
+      - dbnpgsql-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  seq:
+    image: datalust/seq:latest
+    container_name: seq
+    environment:
+      - ACCEPT_EULA=Y
+      - TZ=Brazil/East
+    ports:
+      - "5341:5341"
+      - "8082:80"
+    volumes:
+      - seq-log-data:/data
+    networks:
+      - evaluation-network
+
+networks:
+  evaluation-network:
+    external: false
+  
+volumes:
+  dbnpgsql-data:
+  seq-log-data:
