@@ -15,4 +15,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\CashFlow.Api\CashFlow.Api.csproj" />
   </ItemGroup>
+  <ItemGroup>
+  <None Update="xunit.runner.json">
+    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+  </None>
+</ItemGroup>
 </Project>

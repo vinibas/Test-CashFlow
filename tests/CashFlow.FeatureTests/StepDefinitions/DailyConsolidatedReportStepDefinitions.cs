@@ -13,29 +13,77 @@ namespace CashFlow.FeatureTests.StepDefinitions;
 [Binding]
 public class DailyConsolidatedReportStepDefinitions : IClassFixture<TestWebApplicationFactory<Program>>, IDisposable
 {
-    private const string ReportEndpoint = "/api/v1/DailyConsolidatedReport";
+    private const string ReportEndpointResumed = "/api/v1/DailyConsolidatedReport";
+    private const string ReportEndpointExtended = "/api/v1/DailyConsolidatedReport/Extended";
+
     private readonly TestWebApplicationFactory<Program> _factory;
     private readonly HttpClient _httpClient;
+
     private string? _consultationDate;
     private DateOnly consultationDateParsed => DateOnly.Parse(_consultationDate ?? DateOnly.MinValue.ToString());
-    private HttpResponseMessage? _response;
+    private List<Entry> currentEntriesOnDB = [];
 
-    private DailyConsolidated? _dailyConsolidatedReturned;
-    private DailyConsolidatedExpected? _dailyConsolidatedExpected;
+    private HttpResponseMessage? _response;
+    private DailyConsolidatedResponseData? _dailyConsolidatedReturned;
+    private DailyConsolidatedResponseData? _dailyConsolidatedExpected;
+
+    string reportType = "";
 
     public DailyConsolidatedReportStepDefinitions(TestWebApplicationFactory<Program> factory)
     {
         _factory = factory;
         _httpClient = factory.CreateClient();
 
-        CleanDatabase();
+        _factory.CleanDatabase();
+        currentEntriesOnDB = [];
     }
 
-    private void CleanDatabase()
+    [Given(@"I have the following entries in my database:")]
+    public void GivenIHaveTheFollowingEntriesInMyDatabase(Table table)
     {
+        // Additional logic required for the fields generated or calculated in the database.
+        var random = new Random();
         using var scope = _factory.Services.CreateScope();
         var cx = scope.ServiceProvider.GetRequiredService<CashFlowContext>();
-        cx.DailyConsolidated.RemoveRange(cx.DailyConsolidated);
+
+        Type entryType = typeof(Entry);
+        Type dailyConsolidatedType = typeof(DailyConsolidated);
+
+        var lineNumber = 0;
+        foreach (var row in table.Rows)
+        {
+            var date = DateOnly.Parse(row["date"].Trim('"'));
+            var value = decimal.Parse(row["value"]);
+            var type = row["type"].Trim('"');
+
+            var dateWithRandomTime = date.ToDateTime(new TimeOnly(random.Next(0, 24), random.Next(0, 60)));
+
+            var entry = new Entry(value, (EntryType)type[0], "Feature test description", dateWithRandomTime);
+
+            entryType.GetProperty(nameof(Entry.LineNumber))!.SetValue(entry, ++lineNumber);
+
+            currentEntriesOnDB.Add(entry);
+        }
+
+        var reports = currentEntriesOnDB
+            .GroupBy(e => DateOnly.FromDateTime(e.TransactionAtUtc))
+            .Select(g =>
+            {
+                var report = new DailyConsolidated(
+                    g.Key,
+                    g.Where(e => e.Type == EntryType.Credit).Sum(e => e.Value),
+                    g.Where(e => e.Type == EntryType.Debit).Sum(e => e.Value));
+
+                var lastLineNumberCalculated = g.Max(e => e.LineNumber);
+                dailyConsolidatedType.GetProperty(nameof(DailyConsolidated.LastLineNumberCalculated))!.SetValue(report, lastLineNumberCalculated);
+
+                return report;
+            })
+            .ToList();
+
+        cx.Entries.AddRange(currentEntriesOnDB);
+        cx.DailyConsolidated.AddRange(reports);
+        
         cx.SaveChanges();
     }
 
@@ -46,31 +94,20 @@ public class DailyConsolidatedReportStepDefinitions : IClassFixture<TestWebAppli
             DateOnly.FromDateTime(DateTime.UtcNow).ToString("yyyy-MM-dd") : date;
     }
 
-    [Given(@"there are TotalCredits {decimal} and TotalDebits {decimal} values for this date")]
-    public void GivenThereAreTotalCreditsAndTotalDebitsValuesForAConsultationDate(decimal totalCredits, decimal totalDebits)
-    {
-        using var scope = _factory.Services.CreateScope();
-        var cx = scope.ServiceProvider.GetRequiredService<CashFlowContext>();
-        var entries = GenerateMassOfData(consultationDateParsed, totalCredits, totalDebits);
-        cx.DailyConsolidated.AddRange(entries);
-        cx.SaveChanges();
-    }
-
-    private static DailyConsolidated[] GenerateMassOfData(DateOnly date, decimal totalCredits, decimal totalDebits)
-        =>
-        [
-            new (date.AddDays(-1), 100.00m, 50.00m),
-            new (date, totalCredits, totalDebits),
-            new (date.AddDays(1), 300.00m, 150.00m),
-        ];
-
     [Given("there are no entries for this date")]
     public static void GivenThereAreNoEntriesForThisDate() { }
 
-    [When("I request the consolidated report for the consultation date")]
-    public async Task WhenIRequestTheConsolidatedReportForTheConsultationDate()
+    [When("I request the consolidated report of the type {string} for the consultation date")]
+    public async Task WhenIRequestTheConsolidatedReportOfTheTypeForTheConsultationDate(string type)
     {
-        var url = $"{ReportEndpoint}/{_consultationDate}";
+        var url = type switch
+        {
+            "resumed" => $"{ReportEndpointResumed}/{_consultationDate}",
+            "extended" => $"{ReportEndpointExtended}/{_consultationDate}",
+            _ => throw new InvalidOperationException(),
+        };
+        reportType = type;
+
         _response = await _httpClient.GetAsync(url);
     }
 
@@ -93,12 +130,14 @@ public class DailyConsolidatedReportStepDefinitions : IClassFixture<TestWebAppli
         _dailyConsolidatedReturned.Date.Should().Be(_dailyConsolidatedExpected.Date);
         _dailyConsolidatedReturned.TotalCredits.Should().Be(_dailyConsolidatedExpected.TotalCredits);
         _dailyConsolidatedReturned.TotalDebits.Should().Be(_dailyConsolidatedExpected.TotalDebits);
+        _dailyConsolidatedReturned.NetBalance.Should().Be(_dailyConsolidatedExpected.NetBalance);
         _dailyConsolidatedReturned.IsClosed.Should().Be(_dailyConsolidatedExpected.IsClosed);
+        _dailyConsolidatedReturned.Entries.Should().BeEquivalentTo(_dailyConsolidatedExpected.Entries);
     }
 
     private async Task FillOutDailyConsolidatedReturnedAsync()
     {
-        _dailyConsolidatedReturned = await _response!.Content.ReadFromJsonAsync<DailyConsolidated>() ??
+        _dailyConsolidatedReturned = await _response!.Content.ReadFromJsonAsync<DailyConsolidatedResponseData>() ??
             throw new InvalidOperationException("Response could not be deserialized as DailyConsolidated");
     }
 
@@ -109,10 +148,20 @@ public class DailyConsolidatedReportStepDefinitions : IClassFixture<TestWebAppli
             DateOnly.FromDateTime(DateTime.UtcNow) :
             DateOnly.Parse(row["date"].Trim('"'));
 
-        _dailyConsolidatedExpected = new DailyConsolidatedExpected(
+        var expectedEntries = reportType is "extended" ?
+            currentEntriesOnDB
+                .Where(e => DateOnly.FromDateTime(e.TransactionAtUtc) == consultationDateParsed)
+                .OrderBy(e => e.TransactionAtUtc)
+                .Select(e => new EntryResponseData(e.Value, (char)e.Type))
+                .ToList() :
+                null;
+            
+        _dailyConsolidatedExpected = new DailyConsolidatedResponseData(
             date,
+            expectedEntries,
             decimal.Parse(row["totalCredits"]),
             decimal.Parse(row["totalDebits"]),
+            decimal.Parse(row["netBalance"]),
             bool.Parse(row["isClosed"])
         );
     }
@@ -156,5 +205,12 @@ public class DailyConsolidatedReportStepDefinitions : IClassFixture<TestWebAppli
         _factory.Dispose();
     }
 
-    public record DailyConsolidatedExpected(DateOnly Date, decimal TotalCredits, decimal TotalDebits, bool IsClosed);
+    public record DailyConsolidatedResponseData(
+        DateOnly Date,
+        IEnumerable<EntryResponseData>? Entries,
+        decimal TotalCredits,
+        decimal TotalDebits,
+        decimal NetBalance,
+        bool IsClosed);
+    public record EntryResponseData(decimal Value, char Type);
 }

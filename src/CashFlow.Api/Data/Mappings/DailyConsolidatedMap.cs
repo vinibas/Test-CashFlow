@@ -10,13 +10,10 @@ public class DailyConsolidatedMap : IEntityTypeConfiguration<DailyConsolidated>
     {
         builder.HasKey(dc => dc.Id);
 
-        builder.Property<long>("LastLineNumberCalculated")
-            .IsRequired();
-
         builder.HasOne<Entry>()
             .WithOne()
-            .HasForeignKey<DailyConsolidated>("LastLineNumberCalculated")
-            .HasPrincipalKey<Entry>("LineNumber");
+            .HasForeignKey<DailyConsolidated>(dc => dc.LastLineNumberCalculated)
+            .HasPrincipalKey<Entry>(e => e.LineNumber);
 
         builder.HasIndex(dc => dc.Date)
             .HasDatabaseName("IX_DailyConsolidated_Date")

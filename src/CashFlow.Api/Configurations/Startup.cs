@@ -84,7 +84,9 @@ public class Startup(IConfiguration configuration, IWebHostEnvironment environme
 
     private void ApplyMigrationsIfNotInProduction(WebApplication app)
     {
-        if (!Environment.IsProduction())
+        var inIntegrationTestContext = Configuration.GetValue<string>("InIntegrationTestContext");
+
+        if (!Environment.IsProduction() && inIntegrationTestContext != "true")
         {
             using var scope = app.Services.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<CashFlowContext>();

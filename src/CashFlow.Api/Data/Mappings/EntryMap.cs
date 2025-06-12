@@ -18,7 +18,7 @@ public class EntryMap : IEntityTypeConfiguration<Entry>
             .HasConversion(t => (char)t, t => (EntryType)t);
 
 
-        builder.Property<long>("LineNumber")
+        builder.Property(e => e.LineNumber)
             .ValueGeneratedOnAdd();
 
 

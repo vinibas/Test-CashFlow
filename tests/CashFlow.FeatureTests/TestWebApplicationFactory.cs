@@ -66,6 +66,15 @@ public class TestWebApplicationFactory<TProgram>
 
         public override async Task<DailyConsolidated?> GetConsolidatedUpdatedAsync(DateOnly date)
             => await _context.DailyConsolidated.SingleOrDefaultAsync(dc => dc.Date == date);
-
     }
+
+    public void CleanDatabase()
+    {
+        using var scope = Services.CreateScope();
+        var cx = scope.ServiceProvider.GetRequiredService<CashFlowContext>();
+        cx.Entries.RemoveRange(cx.Entries);
+        cx.DailyConsolidated.RemoveRange(cx.DailyConsolidated);
+        cx.SaveChangesAsync();
+    }
+
 }

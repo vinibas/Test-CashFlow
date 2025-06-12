@@ -24,15 +24,7 @@ public class EntryControlApiStepDefinitions : IClassFixture<TestWebApplicationFa
         _factory = factory;
         _httpClient = factory.CreateClient();
 
-        CleanDatabase();
-    }
-
-    private void CleanDatabase()
-    {
-        using var scope = _factory.Services.CreateScope();
-        var cx = scope.ServiceProvider.GetRequiredService<CashFlowContext>();
-        cx.Entries.RemoveRange(cx.Entries);
-        cx.SaveChanges();
+        _factory.CleanDatabase();
     }
 
     [Given("I have a entry with value {decimal} and type {string}")]
