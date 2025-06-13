@@ -25,5 +25,6 @@ public class EntryDao : IEntryDao
         .Where(e => DateOnly.FromDateTime(e.TransactionAtUtc) == date)
         .Where(e => e.LineNumber <= maxLineNumber)
         .OrderBy(e => e.TransactionAtUtc)
+        .AsNoTrackingWithIdentityResolution()
         .ToListAsync();
 }
