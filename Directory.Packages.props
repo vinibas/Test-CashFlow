@@ -4,9 +4,9 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="AwesomeAssertions" Version="9.0.0" />
-    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.5" />
-    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="9.0.5" />
-    <PackageVersion Include="Scalar.AspNetCore" Version="2.4.7" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.6" />
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="9.0.6" />
+    <PackageVersion Include="Scalar.AspNetCore" Version="2.4.13" />
     <PackageVersion Include="ViniBas.ResultPattern.AspNet" Version="2.0.0" />
   </ItemGroup>
   <ItemGroup>
@@ -19,7 +19,7 @@
     <PackageVersion Include="Serilog.AspNetCore" Version="9.0.0" />
     <PackageVersion Include="Serilog.Enrichers.ClientInfo" Version="2.1.2" />
     <PackageVersion Include="Serilog.Enrichers.Environment" Version="3.0.1" />
-    <PackageVersion Include="Serilog.Exceptions.EntityFrameworkCore" Version="5.4.0" />
+    <PackageVersion Include="Serilog.Exceptions.EntityFrameworkCore" Version="8.4.0" />
     <PackageVersion Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageVersion Include="Serilog.Sinks.Seq" Version="9.0.0" />
   </ItemGroup>
@@ -31,9 +31,9 @@
   </ItemGroup>
   <ItemGroup>
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.0" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageVersion Include="xunit" Version="2.9.3" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.0" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.1" />
     <PackageVersion Include="Moq" Version="4.20.72" />
     <PackageVersion Include="Moq.AutoMock" Version="3.5.0" />
     <PackageVersion Include="Reqnroll.xUnit" Version="2.4.1" />

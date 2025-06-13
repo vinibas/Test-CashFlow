@@ -52,10 +52,12 @@ public class Startup(IConfiguration configuration, IWebHostEnvironment environme
             .AddNpgSql(conString)
             .AddUrlGroup(new Uri(seqHealthUrl), name: "seq", failureStatus: HealthStatus.Degraded)
             .AddSeqPublisher((options) => { options.Endpoint = seqEndpoint; });
+
         services.AddOpenApi();
+        
         services.RegisterServices(Configuration, Environment.IsDevelopment());
     }
-    
+
     public void Configure(WebApplication app)
     {
         GlobalConfiguration.UseProblemDetails = true;

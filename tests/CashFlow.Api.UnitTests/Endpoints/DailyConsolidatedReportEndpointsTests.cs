@@ -22,7 +22,7 @@ public class DailyConsolidatedReportEndpointsTests
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
-    public async Task DailyConsolidatedReportHandlerAsync_ValidDateWithEntries_ReturnsValuesOnReport(bool isClosed)
+    public async Task DailyConsolidatedReportSummaryGetHandlerAsync_ValidDateWithEntries_ReturnsValuesOnReport(bool isClosed)
     {
         var consultationDate = isClosed ? new DateOnly(2025, 05, 31) : DateOnly.FromDateTime(DateTime.UtcNow);
         var consolidatedMock = new DailyConsolidated(consultationDate, 700, 299);
@@ -30,7 +30,7 @@ public class DailyConsolidatedReportEndpointsTests
             dao.GetConsolidatedUpdatedAsync(It.Is<DateOnly>(d => d == consultationDate)))
             .ReturnsAsync(consolidatedMock);
 
-        var result = await DailyConsolidatedReportEndpoints.DailyConsolidatedReportGetHandlerAsync
+        var result = await DailyConsolidatedReportEndpoints.DailyConsolidatedReportSummaryGetHandlerAsync
             (_dailyConsolidatedDaoMock.Object, consultationDate.ToString());
 
         var consolidatedToReturn = new DailyConsolidatedReportVM(consultationDate, 700, 299, 401, isClosed);
@@ -44,14 +44,14 @@ public class DailyConsolidatedReportEndpointsTests
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
-    public async Task DailyConsolidatedReportHandlerAsync_ValidDateWithNoEntries_ReturnsZeroValuesOnReport(bool isClosed)
+    public async Task DailyConsolidatedReportSummaryGetHandlerAsync_ValidDateWithNoEntries_ReturnsZeroValuesOnReport(bool isClosed)
     {
         var consultationDate = isClosed ? new DateOnly(2025, 05, 31) : DateOnly.FromDateTime(DateTime.UtcNow);
         _dailyConsolidatedDaoMock.Setup(dao =>
             dao.GetConsolidatedUpdatedAsync(It.Is<DateOnly>(d => d == consultationDate)))
             .ReturnsAsync(null as DailyConsolidated);
 
-        var result = await DailyConsolidatedReportEndpoints.DailyConsolidatedReportGetHandlerAsync
+        var result = await DailyConsolidatedReportEndpoints.DailyConsolidatedReportSummaryGetHandlerAsync
             (_dailyConsolidatedDaoMock.Object, consultationDate.ToString());
 
         var consolidatedToReturn = new DailyConsolidatedReportVM(consultationDate, 0, 0, 0, isClosed);
@@ -63,11 +63,11 @@ public class DailyConsolidatedReportEndpointsTests
     }
 
     [Fact]
-    public async Task DailyConsolidatedReportHandlerAsync_InvalidDate_ReturnsErrorMessage()
+    public async Task DailyConsolidatedReportSummaryGetHandlerAsync_InvalidDate_ReturnsErrorMessage()
     {
         var consultationDate = "invalid_date";
 
-        var result = await DailyConsolidatedReportEndpoints.DailyConsolidatedReportGetHandlerAsync
+        var result = await DailyConsolidatedReportEndpoints.DailyConsolidatedReportSummaryGetHandlerAsync
             (_dailyConsolidatedDaoMock.Object, consultationDate);
 
         var resultType = result.Should().BeOfType<Results<Ok<DailyConsolidatedReportVM>, ProblemHttpResult>>().Subject;

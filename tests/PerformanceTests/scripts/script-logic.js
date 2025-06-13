@@ -7,7 +7,7 @@ import { generateEntryControlPayload, getFormattedDateOnly, getRandomTime, param
 
 const baseDate = new Date(2024, 3, 27);
 const dateOnlyStr = getFormattedDateOnly(baseDate);
-const reportUrl = `${parameters.baseUrl}/api/v1/DailyConsolidatedReport/${dateOnlyStr}`;
+const reportUrl = `${parameters.baseUrl}/api/v1/DailyConsolidatedReport/Extended/${dateOnlyStr}`;
 
 const numberOfEntryControlsPerCycle = 10;
 const delayBetweenEntriesMs = 100;
@@ -137,9 +137,16 @@ function sendEntryControlReleases() {
 
     let totalCreditsSent = new Big(0);
     let totalDebitsSent = new Big(0);
+    let entries = [];
 
     for (let i = 0; i < numberOfEntryControlsPerCycle; i++) {
         const payloadObj = sendEntryControlRelease(i);
+
+        entries.push({
+            value: Number(payloadObj.value),
+            type: payloadObj.type,
+            transactionAtUtc: payloadObj.transactionAtUtc
+        });
 
         switch (payloadObj.type) {
             case 'C':
@@ -154,7 +161,7 @@ function sendEntryControlReleases() {
             sleep(delayBetweenEntriesMs / 1000);
     }
 
-    return { credits: totalCreditsSent, debits: totalDebitsSent };
+    return { credits: totalCreditsSent, debits: totalDebitsSent, entries };
 }
 
 function sendEntryControlRelease(releaseIndex) {
@@ -183,7 +190,10 @@ function sendEntryControlRelease(releaseIndex) {
         return;
     }
 
-    return payloadObj;
+    return {
+        ...payloadObj,
+        transactionAtUtc: new Date(dateTimeStr)
+    };
 }
 
 function verifyDailyConsolidatedReport(initialValues, sentTransactionsDataSentInThisIteration, expectedTotalTransactions) {
@@ -208,13 +218,26 @@ function verifyDailyConsolidatedReport(initialValues, sentTransactionsDataSentIn
     const reportTotal = {
         credits: new Big(reportData.totalCredits),
         debits: new Big(reportData.totalDebits),
+        countEntries: reportData.entries.length,
     }
 
-    console.log(`Iter ${__ITER}: Final Report - API Credits: ${reportTotal.credits.toFixed(2)}, API Debits: ${reportTotal.debits.toFixed(2)}`);
+    console.log(`Iter ${__ITER}: Final Report - API Credits: ${reportTotal.credits.toFixed(2)}, API Debits: ${reportTotal.debits.toFixed(2)}, Count entries: ${ reportTotal.countEntries }`);
 
+    const apiEntries = reportData.entries;
+    const sentEntries = sentTransactionsDataSentInThisIteration.entries
+        .slice().sort((a, b) => a.transactionAtUtc - b.transactionAtUtc);
+
+    const entriesMatch = apiEntries.length === sortedSentEntries.length &&
+        apiEntries.every((e, i) =>
+            Number(e.value) === sortedSentEntries[i].value &&
+            e.type === sortedSentEntries[i].type &&
+            new Date(e.transactionAtUtc).getTime() === sortedSentEntries[i].transactionAtUtc.getTime()
+        );
+    
     const checks = {
         'TotalCredits match expected sum': () => reportTotal.credits.eq(expectedTotalTransactions.credits),
         'TotalDebits match expected sum': () => reportTotal.debits.eq(expectedTotalTransactions.debits),
+        'Entries match sent transactions and order': () => entriesMatch,
     };
     const allSumsMatch = check(finalReportRes, checks, { date_tested: dateOnlyStr, iteration: __ITER });
 
@@ -226,6 +249,11 @@ function verifyDailyConsolidatedReport(initialValues, sentTransactionsDataSentIn
         if (!reportTotal.debits.eq(expectedTotalTransactions.debits)) {
             console.error(`Iter ${__ITER}: MISMATCH for Debits on ${dateOnlyStr}: Expected ${expectedTotalTransactions.debits.toFixed(2)}, but got ${reportTotal.debits.toFixed(2)}.`);
             console.error(`  (Base for iter: ${initialValues.debits.toFixed(2)}, Added this iter: ${sentTransactionsDataSentInThisIteration.debits.toFixed(2)})`);
+        }
+        if (!entriesMatch) {
+            console.error(`Iter ${__ITER}: MISMATCH for Entries on ${dateOnlyStr}:`);
+            console.error(`  Sent entries: ${JSON.stringify(sortedSentEntries)}`);
+            console.error(`  API entries:  ${JSON.stringify(apiEntries)}`);
         }
     }
 }

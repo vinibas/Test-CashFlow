@@ -13,7 +13,7 @@ namespace CashFlow.FeatureTests.StepDefinitions;
 [Binding]
 public class DailyConsolidatedReportStepDefinitions : IClassFixture<TestWebApplicationFactory<Program>>, IDisposable
 {
-    private const string ReportEndpointResumed = "/api/v1/DailyConsolidatedReport";
+    private const string ReportEndpointResumed = "/api/v1/DailyConsolidatedReport/Summary";
     private const string ReportEndpointExtended = "/api/v1/DailyConsolidatedReport/Extended";
 
     private readonly TestWebApplicationFactory<Program> _factory;

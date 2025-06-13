@@ -15,7 +15,7 @@ services:
       - ConnectionStrings__CashFlowDatabase=Host=dbnpgsql;Database=CashFlowDb;Username=postgres;Password=admin
       - Serilog__WriteTo__1__Name=Seq
       - Serilog__WriteTo__1__Args__serverUrl=http://seq:5341
-      - Seq__HealthUrl=http://seq:8082/health
+      - Seq__HealthUrl=http://seq:80/health
     networks:
       - evaluation-network
     tty: true

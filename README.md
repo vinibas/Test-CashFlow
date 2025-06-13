@@ -55,7 +55,7 @@ Abra o terminal de sua preferência na pasta raiz do projeto e digite:
 
 #### Testes de carga:
 
-Primeiro, certifique-se que sua API está rodando, e que o banco de dados está limpo. Caso hajam registros, os testes de lógica não passarão. Depois, abra o terminal de sua preferência na pasta `tests/PerformanceTests/` do projeto e digite:
+Primeiro, certifique-se que sua API está rodando, e que o banco de dados está limpo. Caso hajam registros, os testes de lógica não passarão. Ajuste o valor de K6_BASE_URL_ENV de acordo com a URL da Api. Depois, abra o terminal de sua preferência na pasta `tests/PerformanceTests/` do projeto e digite:
 
 - Para o teste de carga: 
 `k6 run scripts/script-load.js --insecure-skip-tls-verify --out json=results/test-load.json -e K6_BASE_URL=${K6_BASE_URL_ENV:-https://localhost:7027}`
@@ -103,7 +103,12 @@ Não há configurações para rodar diretamente pelo Visual Studio Code.
 #### API:
 
 Abra o terminal de sua preferência na pasta raiz do projeto e digite:
-`docker-compose -f docker-compose-services.yml -f docker-compose.yml up`. O projeto estará acessível na url `http://localhost:8090/`.
+```
+# (Para evitar problema de cache)
+docker build -t cashflow-api -f src/CashFlow.Api/Dockerfile .
+docker-compose -f docker-compose-services.yml -f docker-compose.yml up
+```
+O projeto estará acessível na url `http://localhost:8090/`.
 
 #### Testes Unitários e Comportamentais:
 
@@ -111,7 +116,7 @@ Não se aplica, os testes não rodam via docker.
 
 #### Testes de carga:
 
-Primeiro, certifique-se que sua API está rodando, e que o banco de dados está limpo. Caso hajam registros, os testes de lógica não passarão. Depois, abra o terminal de sua preferência na pasta `tests/PerformanceTests/` do projeto e digite:
+Primeiro, certifique-se que sua API está rodando, e que o banco de dados está limpo. Caso hajam registros, os testes de lógica não passarão. Ajuste o valor de K6_BASE_URL_ENV de acordo com a URL da Api. Depois, abra o terminal de sua preferência na pasta `tests/PerformanceTests/` do projeto e digite:
 
 - Para o teste de carga: 
 `docker run --rm -i --user $(id -u):$(id -g) -v $(pwd):/src --workdir /src -e K6_BASE_URL=${K6_BASE_URL_ENV:-https://localhost:7027} --network=host grafana/k6 run /src/scripts/script-load.js --insecure-skip-tls-verify --out json=/src/results/test-load.json`
@@ -136,6 +141,8 @@ Para limpeza do Banco de Dados, para a correta execução do teste de lógica do
 delete from "DailyConsolidated";
 delete from "Entries";
 ```
+
+Caso não queira ter que acessar um cliente do Postgresql para limpar a tabela, você pode fazer dois ajustes no código: Alterar baseDate para uma data não utilizada, ou comentar a função setup(), pois é ela quem verifica os valores iniciais.
 
 
 ## Explicação da solução
@@ -162,7 +169,7 @@ Sobre a questão da independência entre os serviços de lançamento e relatóri
 
 Uma arquitetura mais simples possibilitou tempo para investir em uma boa cobertura de testes automatizados, testes comportamentais e de carga, além da configuração do Docker. Em um cenário real, soluções adequadas também economizam tempo e dinheiro de nossos clientes.
 
-Quanto ao cálculo dos totalizadores, foi utilizada uma function do Postgresql para lidar com o problema da concorrência do cálculo, sem ter que criar um serviço extra, mantendo a aplicação escalável horizontalmente.
+Quanto ao cálculo dos totalizadores, foi utilizada uma function do Postgresql para lidar com o problema da concorrência do cálculo, onde somente as novas entradas precisam ser calculadas, e sem ter que criar um serviço extra, mantendo a aplicação escalável horizontalmente. Para retornar a lista de valores do dia, foi utilizada uma lógica de listagem de todos os valores calculados pelos totalizadores, e os índices na tabela permitiram uma busca eficiente, sem necessidade de cache, o que foi avaliado através dos testes de carga, porém esta medida poderia ser reavaliada no futuro.
 
 
 ## O que eu gostaria de ter feito a mais?
@@ -172,6 +179,5 @@ Muita coisa poderia ter sido adicionada. Seguem algumas:
 - Integração com o Kubernetes, para realização dos testes de carga ser mais fiel ao cenário de produção e poder refletir melhor a disponibilidade;
 - API Gateway, como Ocelot, para separar os serviços, como se fossem aplicações distintas;
 - Autorização, para separar os acessos das API's;
-- Endpoint adicional com relatório mais completo, listando todos os lançamentos daquela data, o que poderia ser facilmente alcançado com uma solução parecida com a que já foi dada, adicionado o uso de Cache;
 - Melhoria na observabilidade com telerimetria, como com o OpenTelemetry, por exemplo;
 - Diagramas UML que ajudem a explicar de uma forma geral a solução.

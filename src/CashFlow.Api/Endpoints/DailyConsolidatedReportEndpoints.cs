@@ -14,13 +14,13 @@ public static class DailyConsolidatedReportEndpoints
 {
     public static IEndpointRouteBuilder MapDailyConsolidatedReportEndpoints(this IEndpointRouteBuilder routeBuilder)
     {
-        routeBuilder.MapGet("DailyConsolidatedReport/{date}", DailyConsolidatedReportGetHandlerAsync);
+        routeBuilder.MapGet("DailyConsolidatedReport/Summary/{date}", DailyConsolidatedReportSummaryGetHandlerAsync);
         routeBuilder.MapGet("DailyConsolidatedReport/Extended/{date}", DailyConsolidatedReportExtendedGetHandlerAsync);
 
         return routeBuilder;
     }
 
-    internal static async Task<ResultReport> DailyConsolidatedReportGetHandlerAsync
+    internal static async Task<ResultReport> DailyConsolidatedReportSummaryGetHandlerAsync
         (IDailyConsolidatedDao dailyConsolidatedDao, string date)
     {
         if (!DateOnly.TryParse(date, out var dateDO))
